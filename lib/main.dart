@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp1/demo/listViewDemo.dart';
+import 'package:flutterapp1/demo/BottomNavigationBarDemo.dart';
+import 'package:flutterapp1/demo/BasicDemo.dart';
+import 'package:flutterapp1/demo/NavigatorDemo.dart';
+import 'package:flutterapp1/demo/formDemo.dart';
 
 void main(List<String> args) => runApp(page());
 
@@ -8,16 +12,87 @@ class page extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.grey[100],
-        body: home(),
-      ),
+      // home: Scaffold(
+      //   backgroundColor: Colors.grey[100],
+      //   // body: home()
+      //   // body: navigatorDemo(),
+      // ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => home(
+            TabBarView(
+              children: <Widget>[
+                listViewDemo(),
+                // Icon(Icons.local_cafe, size: 128.0, color: Colors.black12),
+                // Icon(Icons.change_history, size: 128.0, color: Colors.black12),
+                BasicDemo(),
+                Icon(Icons.directions_bike, size: 128.0, color: Colors.black12),
+              ],
+            ),
+            TabBar(
+              tabs: <Widget>[
+                Tab(icon: Icon(Icons.local_cafe)),
+                Tab(icon: Icon(Icons.change_history)),
+                Tab(icon: Icon(Icons.directions_bike)),
+              ],
+            )),
+        '/text': (context) => navigatorDemo()
+      },
       theme: ThemeData(primarySwatch: Colors.blue),
     );
   }
 }
 
-class home extends StatelessWidget {
+class home extends StatefulWidget {
+  final Widget _bodyWidget;
+  final Widget _appBarBottom;
+
+  home(this._bodyWidget, this._appBarBottom);
+
+  @override
+  State<StatefulWidget> createState() {
+    return homeBuilder(_bodyWidget, _appBarBottom);
+  }
+}
+
+class homeBuilder extends State<home> {
+  Widget _bodyWidget;
+  Widget _appBarBottom;
+  int _current = 0;
+
+  homeBuilder(this._bodyWidget, this._appBarBottom);
+
+  void _tap(int index) {
+
+    if (index == 1) {
+      setState(() {
+        _current = index;
+        _bodyWidget = formDemo();
+        _appBarBottom = null;
+      });
+    }
+
+    if (index == 0) {
+      setState(() {
+        _current = index;
+        _bodyWidget = TabBarView(
+          children: <Widget>[
+            listViewDemo(),
+            BasicDemo(),
+            Icon(Icons.directions_bike, size: 128.0, color: Colors.black12),
+          ],
+        );
+        _appBarBottom = TabBar(
+          tabs: <Widget>[
+            Tab(icon: Icon(Icons.local_cafe)),
+            Tab(icon: Icon(Icons.change_history)),
+            Tab(icon: Icon(Icons.directions_bike)),
+          ],
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -39,21 +114,18 @@ class home extends StatelessWidget {
                 onPressed: () => debugPrint('search is pressed'),
               )
             ],
-            bottom: TabBar(
-              tabs: <Widget>[
-                Tab(icon: Icon(Icons.local_cafe)),
-                Tab(icon: Icon(Icons.change_history)),
-                Tab(icon: Icon(Icons.directions_bike)),
-              ],
-            ),
+            bottom: _appBarBottom,
           ),
-          body: TabBarView(
-            children: <Widget>[
-              Icon(Icons.local_cafe, size: 128.0, color: Colors.black12),
-              Icon(Icons.change_history, size: 128.0, color: Colors.black12),
-              Icon(Icons.directions_bike, size: 128.0, color: Colors.black12),
-            ],
-          ),
+          body: _bodyWidget,
+          // body: TabBarView(
+          //   children: <Widget>[
+          //     listViewDemo(),
+          //     // Icon(Icons.local_cafe, size: 128.0, color: Colors.black12),
+          //     // Icon(Icons.change_history, size: 128.0, color: Colors.black12),
+          //     BasicDemo(),
+          //     Icon(Icons.directions_bike, size: 128.0, color: Colors.black12),
+          //   ],
+          // ),
           // drawer: Container(
           //   color: Colors.white,
           //   padding: EdgeInsets.all(8.0),
@@ -99,6 +171,17 @@ class home extends StatelessWidget {
               ],
             ),
           ),
+          // bottomNavigationBar: BottomNavigationBarStateDemo(),
+          bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: _current,
+              onTap: _tap,
+              items: [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.chat), title: Text('chat')),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.history), title: Text('history')),
+              ]),
         ));
   }
 }
